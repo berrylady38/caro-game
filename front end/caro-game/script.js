@@ -35,7 +35,7 @@ let currentPlayer = "X"; // X goes first
 function handleMove(event) {
     let row = event.target.dataset.row; // get row index
     let col = event.target.dataset.col; // get column index
-    console.log(`${currentPlayer} clicked: ${row}, ${col}`);
+    // console.log(`${currentPlayer} clicked: ${row}, ${col}`);
 
     // Prevent overwriting a move
     if (board[row][col]!== null) return; 
@@ -44,15 +44,36 @@ function handleMove(event) {
     board[row][col] = currentPlayer; 
     event.target.textContent = currentPlayer;
 
-    // check if the player wins
-    if (checkWin(row, col)) {
-        setTimeout(() => alert(`${currentPlayer} wins!`), 100);
-        setTimeout(resetGame, 200);
-        return;
-    }   
+    // Add color class
+    event.target.classList.remove("blue", "red");
+    event.target.classList.add(currentPlayer === "X" ? "blue" : "red");
+    // console.log(`Current player: ${currentPlayer}`);
 
-    // switch player
+    // Check if the player wins
+    if (checkWin(row, col)) {
+        Swal.fire({
+            title: `${currentPlayer} Wins!`,
+            imageUrl: "https://i.pinimg.com/564x/09/af/e5/09afe5bde61c010b03d4ae8a9089b34d.jpg",
+            imageWidth: 200,
+            imageHeight: 200,
+            confirmButtonText: "OK",
+            customClass: {
+                confirmButton: "custom-confirm-button" // Add custom class
+            }
+        }).then(() => {
+            resetGame(); 
+        });
+        return;
+    }
+     
+    // Switch player
     currentPlayer = currentPlayer === "X" ? "O" : "X";
+
+    // Update the turn display
+    const playerSpan = document.getElementById("player");
+    playerSpan.textContent = currentPlayer;
+    playerSpan.classList.remove("blue", "red"); // Remove old class
+    playerSpan.classList.add(currentPlayer === "X" ? "blue" : "red"); // Add new class
 }
 
 /* 
@@ -87,7 +108,6 @@ function checkWin(row, col) {
             if (board[newRow]?.[newCol] === currentPlayer) count++;
             else break;
         }
-
         if (count >= 5) return true; // Win condition met
     }
 
